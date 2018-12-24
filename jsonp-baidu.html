@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>百度搜索框</title>
+    <style>
+        html,body{
+        margin: 0;
+        padding: 0;
+        height: 100%;
+    }
+    .container{
+        height:300px;
+        width: 640px;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        flex-direction: row;
+        box-sizing: border-box;
+        position: relative;
+        left: 50%;
+        top: 40%;
+        margin:-150px 0 0 -320px
+    }
+    .search-input-text{
+      border: 1px solid #b6b6b6;
+      width: 495px;
+      background: #fff;
+      height: 40px;
+      line-height: 33px;
+      font-size: 18px;
+      padding: 0 0 0 7px;
+    }
+    .search-input-btn {
+      width: 100px;
+      height: 42px;
+      color: #fff;
+      font-size: 16px;
+      letter-spacing: 3px;
+      background: #3385ff;
+      border: .5px solid #2d78f4;
+      vertical-align: top;
+      opacity: .9;
+      padding-bottom: 3px
+    }
+    .search-input-btn:hover{
+      opacity: 1;
+      box-shadow: 0 1px 1px #ccc;
+      cursor: pointer;
+    }
+    .suggest {
+      width: 502px;
+      position: absolute;
+      top: 41px;
+      left:18px;
+      border: 1px solid #999;
+      background: #fff;
+      display: none;
+    }
+    .suggest ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .suggest ul li {
+      padding: 3px;
+      font-size: 17px;
+      line-height: 25px;
+      cursor: pointer;
+    }
+
+    .suggest ul li:hover {
+      background-color: #e5e5e5
+    }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <input type="text" class="search-input-text" value="">
+        <input type="button" value="百度一下" class="search-input-btn" id="btn">
+        <div class="suggest">
+            <ul id="search-result"></ul>
+        </div>
+    </div>
+
+    <script>
+        var container = document.getElementsByClassName('container')[0];
+        var input = document.getElementsByClassName('search-input-text')[0];
+        var btn = document.getElementById('btn');
+        var suggest = document.getElementsByClassName('suggest')[0];
+        var result = document.getElementById('search-result');
+
+        input.onkeyup = function (e) {
+            var e = e || window.event;
+            suggest.style.display = "block";
+            if (this.value.length === 0) {
+                suggest.style.display = "none";
+                return
+            }
+            if (e.keyCode !== 40 && e.keyCode !== 38) {
+                var script = document.createElement('script');
+                script.src = "https://www.baidu.com/su?&wd=" + encodeURI(this.value.trim()) +
+                    "&p=3&cb=handle";
+                document.body.appendChild(script);
+            }
+        }
+
+        function handle(data) {
+            clearContent();
+            var res = data.s;
+            if (res.length > 5) {
+                res = res.slice(0, 4);
+            }
+            for (let i = 0; i < res.length; i++) {
+                var li = document.createElement('li');
+                li.innerHTML = res[i];
+                result.appendChild(li);
+            }
+            (function () {
+                var s = document.querySelectorAll('script');
+                for (let i = 0, len = s.length; i < len; i++) {
+                    document.body.removeChild(s[i]);
+                }
+            })()
+        }
+
+        function clearContent() {
+            for (var i = result.childNodes.length - 1; i >= 0; i--) {
+                result.removeChild(result.childNodes[i])
+            }
+        }
+
+        container.addEventListener('click', function (e) {
+            var event = e || window.event;
+            var target = event.target || event.srcElement;
+            console.log(e.target.id)
+            if (e.target.nodeName.toLowerCase() === 'li') {
+                var keyWords = e.target.innerText;
+                input.value = keyWords;
+                jumpPage()
+            } else if (e.target.id === 'btn') {
+                jumpPage()
+            }
+        }, false)
+        
+        var i = -1;
+        container.addEventListener('keydown', function (e) {
+            var event = e || window.event;
+            var target = event.target || event.srcElement;
+            var size = result.childNodes.length;
+            if (e.keyCode === 13) {
+                jumpPage();
+            };
+            if(e.keyCode === 40){
+                e.preventDefault();
+                i++;
+                if(i>=size) i=0;
+                if(result.childNodes[i]){
+                    input.value = result.childNodes[i].innerHTML;
+                }
+            }
+            if(e.keyCode === 38){
+                e.preventDefault();
+                i--;
+                if(i<0) i=size-1;
+                if(result.childNodes[i]){
+                    input.value = result.childNodes[i].innerHTML;
+                }
+            }
+        }, false)
+
+        function jumpPage() {
+            window.open(`https://www.baidu.com/s?wd=${encodeURI(input.value)}`)
+        }
+
+        document.onclick = () => suggest.style.display = "none";
+    </script>
+</body>
+
+</html>
