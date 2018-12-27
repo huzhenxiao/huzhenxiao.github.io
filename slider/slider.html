@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>轮播图</title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <style>
+        html,
+        body,
+        a {
+            margin: 0;
+            padding: 0;
+            text-decoration: none;
+            list-style: none;
+            height: 100%;
+            width: 100%
+        }
+
+        .container {
+            position: relative;
+            width: 500px;
+            height: 300px;
+            margin: 200px auto;
+            overflow: hidden;
+            border: 1px solid #ccc;
+        }
+
+        .container .list {
+            width: 3000px;
+            height: 300px;
+            position: absolute;
+            z-index: 1;
+        }
+
+        .container .list a {
+            display: block;
+            float: left;
+            width: 500px;
+            height: 300px;
+        }
+
+        .container .list .list1 {
+            background: url("./img/1.jpg") no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .container .list .list2 {
+            background: url("./img/2.jpg") no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .container .list .list3 {
+            background: url("./img/3.jpg") no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .container .list .list4 {
+            background: url("./img/4.jpg") no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .container .slide {
+            position: absolute;
+            z-index: 2;
+            left: 50%;
+            bottom: 20px;
+            margin-left: -40px;
+        }
+
+        .container .slide span {
+            display: inline-block;
+            cursor: pointer;
+            margin: 0 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #fff;
+        }
+
+        .container .slide .active {
+            background-color: #000;
+        }
+
+        .arrow {
+            cursor: pointer;
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            margin-top: -25px;
+            display: none;
+            line-height: 50px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 35px;
+            font-weight: bold;
+            width: 50px;
+            height: 50px;
+            background-color: RGBA(0, 0, 0, .3);
+            color: #fff;
+        }
+
+        .arrow:hover {
+            background-color: RGBA(0, 0, 0, .7);
+        }
+
+        .container:hover .arrow {
+            display: block;
+        }
+
+        #prev {
+            left: 20px;
+        }
+
+        #next {
+            right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="container">
+        <div class="list" id="list" style="left:-500px;">
+            <a href="#" class="list4" target="_blank"></a>
+            <a href="#" class="list1" target="_blank"></a>
+            <a href="#" class="list2" target="_blank"></a>
+            <a href="#" class="list3" target="_blank"></a>
+            <a href="#" class="list4" target="_blank"></a>
+            <a href="#" class="list1" target="_blank"></a>
+        </div>
+        <div class="slide" id="slideBtn">
+            <span index="1" class="active"></span>
+            <span index="2"></span>
+            <span index="3"></span>
+            <span index="4"></span>
+        </div>
+        <a href="javascript:void(0)" class="arrow" id="prev">&lt;</a>
+        <a href="javascript:void(0)" class="arrow" id="next">&gt;</a>
+    </div>
+
+    <script>
+        window.onload = function () {
+            var container = document.getElementById('container'),
+                list = document.getElementById('list'),
+                slide = document.getElementById('slideBtn'),
+                buttons = document.getElementsByTagName('span'),
+                prev = document.getElementById('prev'),
+                next = document.getElementById('next');
+            var index = 1;
+            var animated = false;
+
+            prev.onclick = function () {
+                if (!animated) {
+                    if (index == 1) {
+                        index = 4;
+                    } else {
+                        index -= 1;
+                    }
+                    animate(500)
+                    showBtn();
+                }
+            }
+
+            next.onclick = function () {
+                if (!animated) {
+                    if (index == 4) {
+                        index = 1;
+                    } else {
+                        index += 1;
+                    }
+                    animate(-500)
+                    showBtn();
+                }
+            }
+
+            slide.onclick = function (e) {
+                if(!animated){
+                    var e = e || window.event;
+                    var target = e.target || e.srcElement;
+                    if (target == this) {
+                        return
+                    }
+                    if (target.className == 'active') {
+                        return
+                    }
+                    var myIndex = parseInt(target.getAttribute('index'));
+                    var offset = -500*(myIndex-index);
+                    animate(offset);
+                    index = myIndex;
+                    showBtn();
+                }
+            }
+
+            function showBtn() {
+                for (let i = 0; i < buttons.length; i++) {
+                    if (buttons[i].className == 'active') {
+                        buttons[i].className = '';
+                    }
+                }
+                buttons[index - 1].className = 'active';
+            }
+
+            function animate(offset) {
+                animated = true;
+                var newLeft = parseInt(list.style.left) + offset;
+                var time = 500;
+                var interval = 1000 / 120;
+                var speed = offset / (time / interval);
+
+                function go() {
+                    if ((speed < 0 && parseInt(list.style.left) > newLeft) || (speed > 0 && parseInt(list.style.left) <
+                            newLeft)) {
+                        list.style.left = parseInt(list.style.left) + speed + 'px';
+                        setTimeout(go, interval);
+                    } else {
+                        animated = false;
+                        list.style.left = newLeft + 'px';
+                        if (newLeft > -500) {
+                            list.style.left = "-2000px"
+                        }
+                        if (newLeft < -2000) {
+                            list.style.left = "-500px"
+                        }
+                    }
+                }
+                go();
+            }
+            var timer;
+            function autoSlide() {  
+                timer = setInterval(function () {  
+                    next.onclick();
+                },3000)
+            }
+            
+            function stop() {  
+                clearInterval(timer)
+            }
+            
+            container.onmouseover = stop;
+            container.onmouseout = autoSlide;
+        }
+
+            // $(function () {  
+            //     var container = $('#container'),
+            //         list = $('#list'),
+            //         slide = $('#slideBtn'),
+            //         buttons = $('#slideBtn span'),
+            //         prev = $('#prev'),
+            //         next = $('#next'),
+            //         index = 1,
+            //         interval = 3000,
+            //         timer,
+            //         animated = false;
+
+            //     function play() {  
+            //         timer = setInterval(() => {
+            //             next.trigger('click');
+            //         }, interval);
+            //     }
+
+            //     function stop() {  
+            //         clearInterval(timer);
+            //     }
+
+            //     function animate(offset) {  
+            //         animated = true;
+            //         var newLeft = parseInt(list.css('left'))+offset;
+            //         list.animate({
+            //             'left':newLeft
+            //         },500,function () {  
+            //             if(newLeft>-500){
+            //                 list.css('left',-2000)
+            //             }else if(newLeft<-2000){
+            //                 list.css('left',-500)
+            //             }
+            //             animated = false;
+            //         })
+            //     }
+
+            //     function showBtn() {  
+            //         buttons.eq(index-1).addClass('active').siblings().removeClass('active');
+            //     }
+
+            //     next.on('click',function () { 
+            //         if(animated){
+            //             return
+            //         } 
+            //         if(index ==4){
+            //             index = 1;
+            //         }else{
+            //             index+=1;
+            //         }
+            //         animate(-500);
+            //         showBtn();
+            //     })
+
+            //     prev.on('click',function () {  
+            //         if(animated){
+            //             return
+            //         }
+            //         if(index ==1){
+            //             index = 4;
+            //         }else{
+            //             index-=1;
+            //         }
+            //         animate(500);
+            //         showBtn();
+            //     })
+
+            //     buttons.each(function () {  
+            //         $(this).on('click',function () {  
+            //             if(animated){
+            //                 return
+            //             }
+            //             myIndex = parseInt($(this).attr('index'));
+            //             var offset = -500*(myIndex-index);
+            //             animate(offset);
+            //             index = myIndex;
+            //             showBtn();
+            //         })
+            //     })
+
+            //     container.hover(stop,play);
+            //     play();
+            // })
+
+    </script>
+</body>
+
+</html>
