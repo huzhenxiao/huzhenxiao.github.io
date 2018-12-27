@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>3D轮播图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrapper {
+            position: relative;
+            transform-style: preserve-3d;
+            perspective: 800px;
+            height: 200px;
+            width: 100%;
+            margin-top: 200px;
+        }
+
+        .wrapper img {
+            position: absolute;
+            left: 50%;
+            height: 50%;
+            width: 300px;
+            height: 200px;
+            margin-left: -150px;
+            margin-top: -50px;
+            border-radius: 8px;
+            transition: transform 0.5s ease-in-out;
+        }
+    </style>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+</head>
+
+<body>
+    <div class="wrapper" id="wrapper">
+        <img src="./img/1.png" alt="">
+        <img src="./img/2.png" alt="">
+        <img src="./img/3.png" alt="">
+        <img src="./img/4.png" alt="">
+        <img src="./img/5.png" alt="">
+    </div>
+    <script>
+        $(function () {
+            var Img = $('img'),
+                midIndex = 0,
+                length = Img.length,
+                timer;
+            init();
+
+            function init() {
+                animate();
+                bindEvent();
+                autoPlay();
+            }
+
+            function animate() {
+                console.log($('img'))
+                var len = Math.floor(length / 2);
+                var rNum, lNum;
+                for (let i = 0; i < len; i++) {
+                    lNum = midIndex - 1 - i;
+                    Img.eq(lNum).css({
+                        transform: 'translateX(' + (-150 * (i + 1)) + 'px) translateZ(' + (200 - i *
+                            100) + 'px) rotateY(30deg)'
+                    })
+                    rNum = midIndex + 1 + i;
+                    if (rNum > length - 1) {
+                        rNum -= length;
+                    }
+                    Img.eq(rNum).css({
+                        transform: 'translateX(' + (150 * (i + 1)) + 'px) translateZ(' + (200 - i * 100) +
+                            'px) rotateY(-30deg)'
+                    })
+                    Img.removeClass('on')
+                }
+                Img.eq(midIndex).css({
+                    transform: 'translateZ(300px)'
+                }).addClass('on');
+            }
+
+            function bindEvent() {
+                Img.on('click', function (e) {
+                    if (!$(this).hasClass('on')) {
+                        midIndex = $(this).index();
+                        animate();
+                    }
+                }).hover(function () {
+                    clearInterval(timer)
+                }, autoPlay)
+            }
+
+            function autoPlay() {
+                timer = setInterval(function () {
+                    if (midIndex == length - 1) {
+                        midIndex = 0;
+                    } else {
+                        midIndex++;
+                    }
+                    animate();
+                }, 1000)
+            }
+        })
+    </script>
+</body>
+
+</html>
